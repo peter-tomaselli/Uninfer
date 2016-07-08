@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uninfer", "Uninfer\Uninfer\Uninfer.csproj", "{DA695FCB-ABEA-46FB-BE27-B95ED8F97A27}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uninfer.Test", "Uninfer\Uninfer.Test\Uninfer.Test.csproj", "{753A07CF-7524-4D7D-AD82-71AB3B0298AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uninfer.Vsix", "Uninfer\Uninfer.Vsix\Uninfer.Vsix.csproj", "{D7F760EC-DFA2-4C92-879A-F8D248E51251}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DA695FCB-ABEA-46FB-BE27-B95ED8F97A27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA695FCB-ABEA-46FB-BE27-B95ED8F97A27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA695FCB-ABEA-46FB-BE27-B95ED8F97A27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA695FCB-ABEA-46FB-BE27-B95ED8F97A27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{753A07CF-7524-4D7D-AD82-71AB3B0298AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{753A07CF-7524-4D7D-AD82-71AB3B0298AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{753A07CF-7524-4D7D-AD82-71AB3B0298AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{753A07CF-7524-4D7D-AD82-71AB3B0298AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7F760EC-DFA2-4C92-879A-F8D248E51251}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7F760EC-DFA2-4C92-879A-F8D248E51251}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7F760EC-DFA2-4C92-879A-F8D248E51251}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7F760EC-DFA2-4C92-879A-F8D248E51251}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
