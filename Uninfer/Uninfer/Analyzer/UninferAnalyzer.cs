@@ -1,13 +1,9 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Uninfer
 {
@@ -31,9 +27,9 @@ namespace Uninfer
 
 		#endregion
 
-		private readonly DiagnosticDescriptorData DoNotNameVariablesTheM = new DoNotNameVariablesTheM();
+		private readonly IVariableDeclarationSyntaxDiagnosticData DoNotNameVariablesTheM = new DoNotNameVariablesTheM();
 
-		private readonly DiagnosticDescriptorData VarIsBad = new VarIsBad();
+		private readonly IVariableDeclarationSyntaxDiagnosticData VarIsBad = new VarIsBad();
 
 		private void AnalyzeNode(SyntaxNodeAnalysisContext context)
 		{
@@ -41,27 +37,18 @@ namespace Uninfer
 			if (myNode == null)
 				return;
 
-			if (myNode.Type.IsVar)
-			{
-				// exterminate
-				Diagnostic diagnostic = Diagnostic.Create(VarIsBad.BuiltDescriptor(), myNode.GetLocation(), "`var` is bad.");
-				context.ReportDiagnostic(diagnostic);
-			}
+			DoNotNameVariablesTheM.AnalyzeNode(myNode, context);
 
-			if (myNode.Variables.Any(v => v.Identifier.Text == "theM"))
-			{
-				Diagnostic diagnostic = Diagnostic.Create(DoNotNameVariablesTheM.BuiltDescriptor(), myNode.GetLocation(), "Do not name variables `theM`.");
-				context.ReportDiagnostic(diagnostic);
-			}
+			VarIsBad.AnalyzeNode(myNode, context);
 		}
 
 		private void Junk()
 		{
-			var foo = "foo";
+			var foo = string.Empty;
 		}
 	}
 
-	interface DiagnosticDescriptorData
+	interface IDiagnosticDescriptorData
 	{
 		string Category { get; }
 
@@ -76,15 +63,23 @@ namespace Uninfer
 		string Title { get; }
 	}
 
+	interface ISyntaxNodeAnalyzerDelegate<T>
+		where T : SyntaxNode
+	{
+		void AnalyzeNode(T node, SyntaxNodeAnalysisContext context);
+	}
+
+	interface IVariableDeclarationSyntaxDiagnosticData : IDiagnosticDescriptorData, ISyntaxNodeAnalyzerDelegate<VariableDeclarationSyntax> { }
+
 	static class DiagnosticDescriptorDataExtensions
 	{
-		internal static DiagnosticDescriptor BuiltDescriptor(this DiagnosticDescriptorData descriptorData)
+		internal static DiagnosticDescriptor BuiltDescriptor(this IDiagnosticDescriptorData descriptorData)
 		{
 			return new DiagnosticDescriptor(descriptorData.Id, descriptorData.Title, descriptorData.Format, descriptorData.Category, descriptorData.DefaultSeverity, descriptorData.IsEnabledByDefault);
 		}
 	}
 
-	struct DoNotNameVariablesTheM : DiagnosticDescriptorData
+	struct DoNotNameVariablesTheM : IVariableDeclarationSyntaxDiagnosticData
 	{
 		public string Category { get { return ""; } }
 
@@ -97,20 +92,48 @@ namespace Uninfer
 		public bool IsEnabledByDefault { get { return true; } }
 
 		public string Title { get { return "theM"; } }
+
+		public void AnalyzeNode(VariableDeclarationSyntax node, SyntaxNodeAnalysisContext context)
+		{
+			if (node.Variables.Any(v => v.Identifier.Text == "theM"))
+			{
+				Diagnostic diagnostic = Diagnostic.Create(this.BuiltDescriptor(), node.GetLocation(), "Do not name variables 'theM'.");
+				context.ReportDiagnostic(diagnostic);
+			}
+		}
 	}
 
-	struct VarIsBad : DiagnosticDescriptorData
+	struct VarIsBad : IVariableDeclarationSyntaxDiagnosticData
 	{
 		public string Category { get { return ""; } }
 
 		public DiagnosticSeverity DefaultSeverity { get { return DiagnosticSeverity.Info; } }
 
-		public string Format { get { return "Hey! {0}"; } }
+		public string Format { get { return "Info: {0}"; } }
 
 		public string Id { get { return "UIF001"; } }
 
 		public bool IsEnabledByDefault { get { return true; } }
 
 		public string Title { get { return "Uninferred"; } }
+
+		public void AnalyzeNode(VariableDeclarationSyntax node, SyntaxNodeAnalysisContext context)
+		{
+			if (node.Type.IsVar)
+			{
+				ITypeSymbol type = context.SemanticModel.GetTypeInfo(node.ChildNodes().First()).Type;
+				string message = string.Empty;
+				if (type is IErrorTypeSymbol)
+				{
+					message = "usage of 'var'.";
+				}
+				else
+				{
+					message = string.Format("usage of 'var'. Type should be '{0}'.", type.ToString());
+				}
+				Diagnostic diagnostic = Diagnostic.Create(this.BuiltDescriptor(), node.GetLocation(), message);
+				context.ReportDiagnostic(diagnostic);
+			}
+		}
 	}
 }

@@ -2,18 +2,15 @@
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using TestHelper;
-using Uninfer;
 
 namespace Uninfer.Test
 {
 	[TestClass]
 	public class UnitTest : CodeFixVerifier
 	{
-		//No diagnostics expected to show up
 		[TestMethod]
-		public void TestMethod1()
+		public void TestEmpty()
 		{
 			var test = @"";
 
@@ -21,7 +18,7 @@ namespace Uninfer.Test
 		}
 
 		[TestMethod]
-		public void TestSomething()
+		public void TestVarShouldBeString()
 		{
 			string test = @"
 using System;
@@ -38,11 +35,11 @@ namespace Foo
 	}
 }
 ";
-			DiagnosticDescriptorData varIsBad = new VarIsBad();
+			IDiagnosticDescriptorData varIsBad = new VarIsBad();
 			DiagnosticResult expected = new DiagnosticResult
 			{
 				Id = varIsBad.Id,
-				Message = string.Format(varIsBad.Format, "`var` is bad."),
+				Message = string.Format(varIsBad.Format, "usage of 'var'. Type should be 'string'."),
 				Severity = DiagnosticSeverity.Info,
 				Locations = new[] { new DiagnosticResultLocation("Test0.cs", 11, 4) }
 			};
@@ -50,7 +47,36 @@ namespace Foo
 		}
 
 		[TestMethod]
-		public void TestSomethingElse()
+		public void TestVarIncomplete()
+		{
+			string test = @"
+using System;
+using System.Text;
+
+namespace Foo
+{
+	class Bar
+	{
+		void Baz()
+		{
+			var qux = null; // not valid syntax; we should get the 'weaker' version of our diagnostic message (no inferrable type)
+		}
+	}
+}
+";
+			IDiagnosticDescriptorData varIsBad = new VarIsBad();
+			DiagnosticResult expected = new DiagnosticResult
+			{
+				Id = varIsBad.Id,
+				Message = string.Format(varIsBad.Format, "usage of 'var'."),
+				Severity = DiagnosticSeverity.Info,
+				Locations = new[] { new DiagnosticResultLocation("Test0.cs", 11, 4) }
+			};
+			VerifyCSharpDiagnostic(test, expected);
+		}
+
+		[TestMethod]
+		public void TestTheM()
 		{
 			string test = @"
 using System;
@@ -67,11 +93,11 @@ namespace Foo
 	}
 }
 ";
-			DiagnosticDescriptorData doNotNameVariablesTheM = new DoNotNameVariablesTheM();
+			IDiagnosticDescriptorData doNotNameVariablesTheM = new DoNotNameVariablesTheM();
 			DiagnosticResult expected = new DiagnosticResult
 			{
 				Id = doNotNameVariablesTheM.Id,
-				Message = string.Format(doNotNameVariablesTheM.Format, "Do not name variables `theM`."),
+				Message = string.Format(doNotNameVariablesTheM.Format, "Do not name variables 'theM'."),
 				Severity = DiagnosticSeverity.Warning,
 				Locations = new[] { new DiagnosticResultLocation("Test0.cs", 11, 4) }
 			};
