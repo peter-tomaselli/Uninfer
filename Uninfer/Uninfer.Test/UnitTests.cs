@@ -47,6 +47,42 @@ namespace Foo
 		}
 
 		[TestMethod]
+		public void TestVarFix()
+		{
+			string test = @"
+using System;
+using System.Text;
+
+namespace Foo
+{
+	class Bar
+	{
+		void Baz()
+		{
+			var qux = string.Empty;
+		}
+	}
+}
+";
+			string testFixed = @"
+using System;
+using System.Text;
+
+namespace Foo
+{
+	class Bar
+	{
+		void Baz()
+		{
+			string qux = string.Empty;
+		}
+	}
+}
+";
+			VerifyCSharpFix(test, testFixed);
+		}
+
+		[TestMethod]
 		public void TestVarIncomplete()
 		{
 			string test = @"

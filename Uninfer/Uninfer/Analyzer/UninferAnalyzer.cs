@@ -121,7 +121,7 @@ namespace Uninfer
 		{
 			if (node.Type.IsVar)
 			{
-				ITypeSymbol type = context.SemanticModel.GetTypeInfo(node.ChildNodes().First()).Type;
+				ITypeSymbol type = node.GetDeclarationTypeInfo(context.SemanticModel);
 				string message = string.Empty;
 				if (type is IErrorTypeSymbol)
 				{
@@ -134,6 +134,16 @@ namespace Uninfer
 				Diagnostic diagnostic = Diagnostic.Create(this.BuiltDescriptor(), node.GetLocation(), message);
 				context.ReportDiagnostic(diagnostic);
 			}
+		}
+	}
+
+	static class VariableDeclarationSyntaxExtensions
+	{
+		internal static ITypeSymbol GetDeclarationTypeInfo(this VariableDeclarationSyntax syntax, SemanticModel semanticModel)
+		{
+			ITypeSymbol typeSymbol = semanticModel.GetTypeInfo(syntax.ChildNodes().First()).Type;
+			/* er... hello */
+			return typeSymbol;
 		}
 	}
 }
